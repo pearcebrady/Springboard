@@ -1,0 +1,552 @@
+---
+title: "US Census Data"
+author: "Dhiraj Khanna"
+date: "17/06/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+## Introduction
+
+The US Census API allows you to pull data directly into our environment using the `tidycensus` package.You can obtain your API key from [here](https://api.census.gov/data/key_signup.html). Let's start off by loading the requisite packages and our API key.
+
+```{r}
+library(tidyverse)
+library(tidycensus)
+
+census_api_key('3dfa1c229f23142d27afe30f76081e56a61f4c62')
+```
+There are two main functions for downloading ACS data and Census data - `get_acs()` and `get_decennial()`. Getting variables using the Census API requires knowing the variable ID - and there are thousands of variables (and thus thousands of IDs) across the different Census files. To rapidly search for variables, use the commands `load_variables()` and `View()`. You can get more help on any function by typing `?function_name` in the console. For eg. `?load_variables`
+
+```{r}
+v19 <- load_variables(2019, 'acs5', cache = TRUE)
+head(v19)
+```
+Another way of finding variable names is to search them using [Social Explorer](https://www.socialexplorer.com/data/metadata/). Click on the appropriate survey data year and then “American Community Survey Tables”, which will take you to a list of variables with their Census IDs.
+
+```{r}
+# Bring in 2015-2019 census tract data using the Census API 
+nc.tracts19 <- get_acs(geography = "tract", 
+              year = 2019,
+              variables = c(tpop = "B03002_001", 
+                            nhwhite = "B03002_003", nhblk = "B03002_004",
+                            nhasn = "B03002_006", hisp = "B03002_012",
+                            medinc19 = "B19013_001", rent19  = "B25064_001",
+                            houseval19 = "B25077_001", bach = "B15003_022",
+                            masters = "B15003_023", prof = "B15003_024",
+                            phd = "B15003_025", totcol = "B15003_001", tpop2 = "B01001_001", 
+                            tpopml = "B01001_002", tpopmlt5 = "B01001_003",
+                            tpopml5to9 = "B01001_004", tpopml10to14 = "B01001_005", 
+                            tpopml15to17 = "B01001_006", tpopml18to19 = "B01001_007", 
+                            tpopml20 = "B01001_008", tpopml21 = "B01001_009", 
+                            tpopml22to24 = "B01001_010", tpopml25to29 = "B01001_011", 
+                            tpopml30to34 = "B01001_012", tpopml35to39 = "B01001_013", 
+                            tpopml40to44 = "B01001_014", tpopml45to49 = "B01001_015", 
+                            tpopml50to54 = "B01001_016", tpopml55to59 = "B01001_017", 
+                            tpopml60to61 = "B01001_018", tpopml62to64 = "B01001_019", 
+                            tpopml65to66 = "B01001_020", tpopml67to69 = "B01001_021", 
+                            tpopml70to74 = "B01001_022", tpopml75to79 = "B01001_023", 
+                            tpopml80to85 = "B01001_024", tpopmlgt85 = "B01001_025",
+                            tpopfml = "B01001_026", tpopfmlt5 = "B01001_027",
+                            tpopfml5to9 = "B01001_028", tpopfml10to14 = "B01001_029", 
+                            tpopfml15to17 = "B01001_030", tpopfml18to19 = "B01001_031", 
+                            tpopfml20 = "B01001_032", tpopfml21 = "B01001_033", 
+                            tpopfml22to24 = "B01001_034", tpopfml25to29 = "B01001_035", 
+                            tpopfml30to34 = "B01001_036", tpopfml35to39 = "B01001_037", 
+                            tpopfml40to44 = "B01001_038", tpopfml45to49 = "B01001_039", 
+                            tpopfml50to54 = "B01001_040", tpopfml55to59 = "B01001_041", 
+                            tpopfml60to61 = "B01001_042", tpopfml62to64 = "B01001_043", 
+                            tpopfml65to66 = "B01001_044", tpopfml67to69 = "B01001_045", 
+                            tpopfml70to74 = "B01001_046", tpopfml75to79 = "B01001_047", 
+                            tpopfml80to85 = "B01001_048", tpopfmlgt85 = "B01001_049"),
+              state = "NC",
+              survey = "acs5",
+              output = "wide",
+              geometry = TRUE)
+
+nc.tracts18 <- get_acs(geography = "tract", 
+               year = 2018, 
+               variables = c(tpop = "B03002_001", 
+                            nhwhite = "B03002_003", nhblk = "B03002_004",
+                            nhasn = "B03002_006", hisp = "B03002_012",
+                            medinc18 = "B19013_001", rent18  = "B25064_001",
+                            houseval18 = "B25077_001", bach = "B15003_022",
+                            masters = "B15003_023", prof = "B15003_024",
+                            phd = "B15003_025", totcol = "B15003_001", tpop2 = "B01001_001", 
+                            tpopml = "B01001_002", tpopmlt5 = "B01001_003",
+                            tpopml5to9 = "B01001_004", tpopml10to14 = "B01001_005", 
+                            tpopml15to17 = "B01001_006", tpopml18to19 = "B01001_007", 
+                            tpopml20 = "B01001_008", tpopml21 = "B01001_009", 
+                            tpopml22to24 = "B01001_010", tpopml25to29 = "B01001_011", 
+                            tpopml30to34 = "B01001_012", tpopml35to39 = "B01001_013", 
+                            tpopml40to44 = "B01001_014", tpopml45to49 = "B01001_015", 
+                            tpopml50to54 = "B01001_016", tpopml55to59 = "B01001_017", 
+                            tpopml60to61 = "B01001_018", tpopml62to64 = "B01001_019", 
+                            tpopml65to66 = "B01001_020", tpopml67to69 = "B01001_021", 
+                            tpopml70to74 = "B01001_022", tpopml75to79 = "B01001_023", 
+                            tpopml80to85 = "B01001_024", tpopmlgt85 = "B01001_025",
+                            tpopfml = "B01001_026", tpopfmlt5 = "B01001_027",
+                            tpopfml5to9 = "B01001_028", tpopfml10to14 = "B01001_029", 
+                            tpopfml15to17 = "B01001_030", tpopfml18to19 = "B01001_031", 
+                            tpopfml20 = "B01001_032", tpopfml21 = "B01001_033", 
+                            tpopfml22to24 = "B01001_034", tpopfml25to29 = "B01001_035", 
+                            tpopfml30to34 = "B01001_036", tpopfml35to39 = "B01001_037", 
+                            tpopfml40to44 = "B01001_038", tpopfml45to49 = "B01001_039", 
+                            tpopfml50to54 = "B01001_040", tpopfml55to59 = "B01001_041", 
+                            tpopfml60to61 = "B01001_042", tpopfml62to64 = "B01001_043", 
+                            tpopfml65to66 = "B01001_044", tpopfml67to69 = "B01001_045", 
+                            tpopfml70to74 = "B01001_046", tpopfml75to79 = "B01001_047", 
+                            tpopfml80to85 = "B01001_048", tpopfmlgt85 = "B01001_049"),
+               show_call = TRUE,
+               state = "NC",
+               survey = "acs5",
+               output="wide",
+               geometry = TRUE)
+
+nc.tracts17 <- get_acs(geography = "tract", 
+               year = 2017, 
+               variables = c(tpop = "B03002_001", 
+                            nhwhite = "B03002_003", nhblk = "B03002_004",
+                            nhasn = "B03002_006", hisp = "B03002_012",
+                            medinc17 = "B19013_001", rent17  = "B25064_001",
+                            houseval17 = "B25077_001", bach = "B15003_022",
+                            masters = "B15003_023", prof = "B15003_024",
+                            phd = "B15003_025", totcol = "B15003_001", tpop2 = "B01001_001", 
+                            tpopml = "B01001_002", tpopmlt5 = "B01001_003",
+                            tpopml5to9 = "B01001_004", tpopml10to14 = "B01001_005", 
+                            tpopml15to17 = "B01001_006", tpopml18to19 = "B01001_007", 
+                            tpopml20 = "B01001_008", tpopml21 = "B01001_009", 
+                            tpopml22to24 = "B01001_010", tpopml25to29 = "B01001_011", 
+                            tpopml30to34 = "B01001_012", tpopml35to39 = "B01001_013", 
+                            tpopml40to44 = "B01001_014", tpopml45to49 = "B01001_015", 
+                            tpopml50to54 = "B01001_016", tpopml55to59 = "B01001_017", 
+                            tpopml60to61 = "B01001_018", tpopml62to64 = "B01001_019", 
+                            tpopml65to66 = "B01001_020", tpopml67to69 = "B01001_021", 
+                            tpopml70to74 = "B01001_022", tpopml75to79 = "B01001_023", 
+                            tpopml80to85 = "B01001_024", tpopmlgt85 = "B01001_025",
+                            tpopfml = "B01001_026", tpopfmlt5 = "B01001_027",
+                            tpopfml5to9 = "B01001_028", tpopfml10to14 = "B01001_029", 
+                            tpopfml15to17 = "B01001_030", tpopfml18to19 = "B01001_031", 
+                            tpopfml20 = "B01001_032", tpopfml21 = "B01001_033", 
+                            tpopfml22to24 = "B01001_034", tpopfml25to29 = "B01001_035", 
+                            tpopfml30to34 = "B01001_036", tpopfml35to39 = "B01001_037", 
+                            tpopfml40to44 = "B01001_038", tpopfml45to49 = "B01001_039", 
+                            tpopfml50to54 = "B01001_040", tpopfml55to59 = "B01001_041", 
+                            tpopfml60to61 = "B01001_042", tpopfml62to64 = "B01001_043", 
+                            tpopfml65to66 = "B01001_044", tpopfml67to69 = "B01001_045", 
+                            tpopfml70to74 = "B01001_046", tpopfml75to79 = "B01001_047", 
+                            tpopfml80to85 = "B01001_048", tpopfmlgt85 = "B01001_049"),
+               show_call = TRUE,
+               state = "NC",
+               survey = "acs5",
+               output="wide",
+               geometry = TRUE)
+
+nc.tracts16 <- get_acs(geography = "tract", 
+               year = 2016, 
+               variables = c(tpop = "B03002_001", 
+                            nhwhite = "B03002_003", nhblk = "B03002_004",
+                            nhasn = "B03002_006", hisp = "B03002_012",
+                            medinc16 = "B19013_001", rent16  = "B25064_001",
+                            houseval16 = "B25077_001", bach = "B15003_022",
+                            masters = "B15003_023", prof = "B15003_024",
+                            phd = "B15003_025", totcol = "B15003_001", tpop2 = "B01001_001", 
+                            tpopml = "B01001_002", tpopmlt5 = "B01001_003",
+                            tpopml5to9 = "B01001_004", tpopml10to14 = "B01001_005", 
+                            tpopml15to17 = "B01001_006", tpopml18to19 = "B01001_007", 
+                            tpopml20 = "B01001_008", tpopml21 = "B01001_009", 
+                            tpopml22to24 = "B01001_010", tpopml25to29 = "B01001_011", 
+                            tpopml30to34 = "B01001_012", tpopml35to39 = "B01001_013", 
+                            tpopml40to44 = "B01001_014", tpopml45to49 = "B01001_015", 
+                            tpopml50to54 = "B01001_016", tpopml55to59 = "B01001_017", 
+                            tpopml60to61 = "B01001_018", tpopml62to64 = "B01001_019", 
+                            tpopml65to66 = "B01001_020", tpopml67to69 = "B01001_021", 
+                            tpopml70to74 = "B01001_022", tpopml75to79 = "B01001_023", 
+                            tpopml80to85 = "B01001_024", tpopmlgt85 = "B01001_025",
+                            tpopfml = "B01001_026", tpopfmlt5 = "B01001_027",
+                            tpopfml5to9 = "B01001_028", tpopfml10to14 = "B01001_029", 
+                            tpopfml15to17 = "B01001_030", tpopfml18to19 = "B01001_031", 
+                            tpopfml20 = "B01001_032", tpopfml21 = "B01001_033", 
+                            tpopfml22to24 = "B01001_034", tpopfml25to29 = "B01001_035", 
+                            tpopfml30to34 = "B01001_036", tpopfml35to39 = "B01001_037", 
+                            tpopfml40to44 = "B01001_038", tpopfml45to49 = "B01001_039", 
+                            tpopfml50to54 = "B01001_040", tpopfml55to59 = "B01001_041", 
+                            tpopfml60to61 = "B01001_042", tpopfml62to64 = "B01001_043", 
+                            tpopfml65to66 = "B01001_044", tpopfml67to69 = "B01001_045", 
+                            tpopfml70to74 = "B01001_046", tpopfml75to79 = "B01001_047", 
+                            tpopfml80to85 = "B01001_048", tpopfmlgt85 = "B01001_049"),
+               show_call = TRUE,
+               state = "NC",
+               survey = "acs5",
+               output="wide",
+               geometry = TRUE)
+
+nc.tracts15 <- get_acs(geography = "tract", 
+               year = 2015, 
+               variables = c(tpop = "B03002_001", 
+                            nhwhite = "B03002_003", nhblk = "B03002_004",
+                            nhasn = "B03002_006", hisp = "B03002_012",
+                            medinc15 = "B19013_001", rent15  = "B25064_001",
+                            houseval15 = "B25077_001", bach = "B15003_022",
+                            masters = "B15003_023", prof = "B15003_024",
+                            phd = "B15003_025", totcol = "B15003_001", tpop2 = "B01001_001", 
+                            tpopml = "B01001_002", tpopmlt5 = "B01001_003",
+                            tpopml5to9 = "B01001_004", tpopml10to14 = "B01001_005", 
+                            tpopml15to17 = "B01001_006", tpopml18to19 = "B01001_007", 
+                            tpopml20 = "B01001_008", tpopml21 = "B01001_009", 
+                            tpopml22to24 = "B01001_010", tpopml25to29 = "B01001_011", 
+                            tpopml30to34 = "B01001_012", tpopml35to39 = "B01001_013", 
+                            tpopml40to44 = "B01001_014", tpopml45to49 = "B01001_015", 
+                            tpopml50to54 = "B01001_016", tpopml55to59 = "B01001_017", 
+                            tpopml60to61 = "B01001_018", tpopml62to64 = "B01001_019", 
+                            tpopml65to66 = "B01001_020", tpopml67to69 = "B01001_021", 
+                            tpopml70to74 = "B01001_022", tpopml75to79 = "B01001_023", 
+                            tpopml80to85 = "B01001_024", tpopmlgt85 = "B01001_025",
+                            tpopfml = "B01001_026", tpopfmlt5 = "B01001_027",
+                            tpopfml5to9 = "B01001_028", tpopfml10to14 = "B01001_029", 
+                            tpopfml15to17 = "B01001_030", tpopfml18to19 = "B01001_031", 
+                            tpopfml20 = "B01001_032", tpopfml21 = "B01001_033", 
+                            tpopfml22to24 = "B01001_034", tpopfml25to29 = "B01001_035", 
+                            tpopfml30to34 = "B01001_036", tpopfml35to39 = "B01001_037", 
+                            tpopfml40to44 = "B01001_038", tpopfml45to49 = "B01001_039", 
+                            tpopfml50to54 = "B01001_040", tpopfml55to59 = "B01001_041", 
+                            tpopfml60to61 = "B01001_042", tpopfml62to64 = "B01001_043", 
+                            tpopfml65to66 = "B01001_044", tpopfml67to69 = "B01001_045", 
+                            tpopfml70to74 = "B01001_046", tpopfml75to79 = "B01001_047", 
+                            tpopfml80to85 = "B01001_048", tpopfmlgt85 = "B01001_049"),
+               show_call = TRUE,
+               state = "NC",
+               survey = "acs5",
+               output="wide",
+               geometry = TRUE)
+                      
+```
+
+```{r}
+library(sf)
+library(tmap)
+library(rmapshaper)
+library(tigris)4
+# Make the data tidy, calculate and keep essential vars. 
+nc.tracts19 <- nc.tracts19 %>% 
+  rename_with(~ sub("E$", "", .x), everything()) %>%
+  mutate(pnhwhite19 = 100*(nhwhite/tpop), pnhasn19 = 100*(nhasn/tpop), 
+        pnhblk19 = 100*(nhblk/tpop), phisp19 = 100*(hisp/tpop), 
+        pcol19 = 100*(bach+masters+prof+phd)/totcol) %>%
+  select(c(GEOID,tpop, pnhwhite19, pnhasn19, pnhblk19, phisp19,
+           nhwhite, nhasn, nhblk, hisp,
+           medinc19, rent19, houseval19, pcol19, tpop2, 
+                            tpopml, tpopmlt5,
+                            tpopml5to9, tpopml10to14, 
+                            tpopml15to17, tpopml18to19, 
+                            tpopml20, tpopml21, 
+                            tpopml22to24, tpopml25to29, 
+                            tpopml30to34, tpopml35to39, 
+                            tpopml40to44, tpopml45to49, 
+                            tpopml50to54, tpopml55to59, 
+                            tpopml60to61, tpopml62to64, 
+                            tpopml65to66, tpopml67to69, 
+                            tpopml70to74, tpopml75to79, 
+                            tpopml80to85, tpopmlgt85,
+                            tpopfml, tpopfmlt5,
+                            tpopfml5to9, tpopfml10to14, 
+                            tpopfml15to17, tpopfml18to19, 
+                            tpopfml20, tpopfml21, 
+                            tpopfml22to24, tpopfml25to29, 
+                            tpopfml30to34, tpopfml35to39, 
+                            tpopfml40to44, tpopfml45to49, 
+                            tpopfml50to54, tpopfml55to59, 
+                            tpopfml60to61, tpopfml62to64, 
+                            tpopfml65to66, tpopfml67to69, 
+                            tpopfml70to74, tpopfml75to79, 
+                            tpopfml80to85, tpopfmlgt85))  
+
+nc.tracts18 <- nc.tracts18 %>% 
+  rename_with(~ sub("E$", "", .x), everything()) %>%
+  mutate(pnhwhite18 = 100*(nhwhite/tpop), pnhasn18 = 100*(nhasn/tpop), 
+        pnhblk18 = 100*(nhblk/tpop), phisp18 = 100*(hisp/tpop), 
+        pcol18 = 100*(bach+masters+prof+phd)/totcol) %>%
+  select(c(GEOID,tpop, pnhwhite18, pnhasn18, pnhblk18, phisp18,
+           nhwhite, nhasn, nhblk, hisp,
+           medinc18, rent18, houseval18, pcol18,tpop2, 
+                            tpopml, tpopmlt5,
+                            tpopml5to9, tpopml10to14, 
+                            tpopml15to17, tpopml18to19, 
+                            tpopml20, tpopml21, 
+                            tpopml22to24, tpopml25to29, 
+                            tpopml30to34, tpopml35to39, 
+                            tpopml40to44, tpopml45to49, 
+                            tpopml50to54, tpopml55to59, 
+                            tpopml60to61, tpopml62to64, 
+                            tpopml65to66, tpopml67to69, 
+                            tpopml70to74, tpopml75to79, 
+                            tpopml80to85, tpopmlgt85,
+                            tpopfml, tpopfmlt5,
+                            tpopfml5to9, tpopfml10to14, 
+                            tpopfml15to17, tpopfml18to19, 
+                            tpopfml20, tpopfml21, 
+                            tpopfml22to24, tpopfml25to29, 
+                            tpopfml30to34, tpopfml35to39, 
+                            tpopfml40to44, tpopfml45to49, 
+                            tpopfml50to54, tpopfml55to59, 
+                            tpopfml60to61, tpopfml62to64, 
+                            tpopfml65to66, tpopfml67to69, 
+                            tpopfml70to74, tpopfml75to79, 
+                            tpopfml80to85, tpopfmlgt85))  
+
+nc.tracts17 <- nc.tracts17 %>% 
+  rename_with(~ sub("E$", "", .x), everything()) %>%
+  mutate(pnhwhite17 = 100*(nhwhite/tpop), pnhasn17 = 100*(nhasn/tpop), 
+        pnhblk17 = 100*(nhblk/tpop), phisp17 = 100*(hisp/tpop), 
+        pcol17 = 100*(bach+masters+prof+phd)/totcol) %>%
+  select(c(GEOID,tpop, pnhwhite17, pnhasn17, pnhblk17, phisp17,
+           nhwhite, nhasn, nhblk, hisp,
+           medinc17, rent17, houseval17, pcol17,tpop2, 
+                            tpopml, tpopmlt5,
+                            tpopml5to9, tpopml10to14, 
+                            tpopml15to17, tpopml18to19, 
+                            tpopml20, tpopml21, 
+                            tpopml22to24, tpopml25to29, 
+                            tpopml30to34, tpopml35to39, 
+                            tpopml40to44, tpopml45to49, 
+                            tpopml50to54, tpopml55to59, 
+                            tpopml60to61, tpopml62to64, 
+                            tpopml65to66, tpopml67to69, 
+                            tpopml70to74, tpopml75to79, 
+                            tpopml80to85, tpopmlgt85,
+                            tpopfml, tpopfmlt5,
+                            tpopfml5to9, tpopfml10to14, 
+                            tpopfml15to17, tpopfml18to19, 
+                            tpopfml20, tpopfml21, 
+                            tpopfml22to24, tpopfml25to29, 
+                            tpopfml30to34, tpopfml35to39, 
+                            tpopfml40to44, tpopfml45to49, 
+                            tpopfml50to54, tpopfml55to59, 
+                            tpopfml60to61, tpopfml62to64, 
+                            tpopfml65to66, tpopfml67to69, 
+                            tpopfml70to74, tpopfml75to79, 
+                            tpopfml80to85, tpopfmlgt85)) 
+
+nc.tracts16 <- nc.tracts16 %>% 
+  rename_with(~ sub("E$", "", .x), everything()) %>%
+  mutate(pnhwhite16 = 100*(nhwhite/tpop), pnhasn16 = 100*(nhasn/tpop), 
+        pnhblk16 = 100*(nhblk/tpop), phisp16 = 100*(hisp/tpop), 
+        pcol16 = 100*(bach+masters+prof+phd)/totcol) %>%
+  select(c(GEOID,tpop, pnhwhite16, pnhasn16, pnhblk16, phisp16,
+           nhwhite, nhasn, nhblk, hisp,
+           medinc16, rent16, houseval16, pcol16, tpop2, 
+                            tpopml, tpopmlt5,
+                            tpopml5to9, tpopml10to14, 
+                            tpopml15to17, tpopml18to19, 
+                            tpopml20, tpopml21, 
+                            tpopml22to24, tpopml25to29, 
+                            tpopml30to34, tpopml35to39, 
+                            tpopml40to44, tpopml45to49, 
+                            tpopml50to54, tpopml55to59, 
+                            tpopml60to61, tpopml62to64, 
+                            tpopml65to66, tpopml67to69, 
+                            tpopml70to74, tpopml75to79, 
+                            tpopml80to85, tpopmlgt85,
+                            tpopfml, tpopfmlt5,
+                            tpopfml5to9, tpopfml10to14, 
+                            tpopfml15to17, tpopfml18to19, 
+                            tpopfml20, tpopfml21, 
+                            tpopfml22to24, tpopfml25to29, 
+                            tpopfml30to34, tpopfml35to39, 
+                            tpopfml40to44, tpopfml45to49, 
+                            tpopfml50to54, tpopfml55to59, 
+                            tpopfml60to61, tpopfml62to64, 
+                            tpopfml65to66, tpopfml67to69, 
+                            tpopfml70to74, tpopfml75to79, 
+                            tpopfml80to85, tpopfmlgt85))  
+
+nc.tracts15 <- nc.tracts15 %>% 
+  rename_with(~ sub("E$", "", .x), everything()) %>%
+  mutate(pnhwhite15 = 100*(nhwhite/tpop), pnhasn15 = 100*(nhasn/tpop), 
+        pnhblk15 = 100*(nhblk/tpop), phisp15 = 100*(hisp/tpop), 
+        pcol15 = 100*(bach+masters+prof+phd)/totcol) %>%
+  select(c(GEOID,tpop, pnhwhite15, pnhasn15, pnhblk15, phisp15,
+           nhwhite, nhasn, nhblk, hisp,
+           medinc15, rent15, houseval15, pcol15, tpop2, 
+                            tpopml, tpopmlt5,
+                            tpopml5to9, tpopml10to14, 
+                            tpopml15to17, tpopml18to19, 
+                            tpopml20, tpopml21, 
+                            tpopml22to24, tpopml25to29, 
+                            tpopml30to34, tpopml35to39, 
+                            tpopml40to44, tpopml45to49, 
+                            tpopml50to54, tpopml55to59, 
+                            tpopml60to61, tpopml62to64, 
+                            tpopml65to66, tpopml67to69, 
+                            tpopml70to74, tpopml75to79, 
+                            tpopml80to85, tpopmlgt85,
+                            tpopfml, tpopfmlt5,
+                            tpopfml5to9, tpopfml10to14, 
+                            tpopfml15to17, tpopfml18to19, 
+                            tpopfml20, tpopfml21, 
+                            tpopfml22to24, tpopfml25to29, 
+                            tpopfml30to34, tpopfml35to39, 
+                            tpopfml40to44, tpopfml45to49, 
+                            tpopfml50to54, tpopfml55to59, 
+                            tpopfml60to61, tpopfml62to64, 
+                            tpopfml65to66, tpopfml67to69, 
+                            tpopfml70to74, tpopfml75to79, 
+                            tpopfml80to85, tpopfmlgt85))  
+
+# Bring in city boundaries
+pl <- tigris::places(state = "NC", year = 2019, cb = TRUE)
+
+
+# Keep four large cities in NC
+large_cities <- c('Charlotte', 'Fayetteville', 'Raleigh', 'Winston-Salem')
+large.cities <- pl %>% filter(NAME %in% large_cities)
+#Keep tracts in large cities 
+
+large.tracts19 <- ms_clip(target = nc.tracts19, clip = large.cities, remove_slivers = TRUE)
+sf::sf_use_s2(FALSE)
+large.tracts <- large.tracts %>%
+                st_join(large.cities, left=FALSE)
+
+large.tracts18 <- ms_clip(target = nc.tracts18, clip = large.cities, remove_slivers = TRUE)
+sf::sf_use_s2(FALSE)
+large.tracts <- large.tracts %>%
+                st_join(large.cities, left=FALSE)
+
+large.tracts17 <- ms_clip(target = nc.tracts17, clip = large.cities, remove_slivers = TRUE)
+sf::sf_use_s2(FALSE)
+large.tracts <- large.tracts %>%
+                st_join(large.cities, left=FALSE)
+
+large.tracts16 <- ms_clip(target = nc.tracts16, clip = large.cities, remove_slivers = TRUE)
+sf::sf_use_s2(FALSE)
+large.tracts <- large.tracts %>%
+                st_join(large.cities, left=FALSE)
+
+large.tracts15 <- ms_clip(target = nc.tracts15, clip = large.cities, remove_slivers = TRUE)
+sf::sf_use_s2(FALSE)
+large.tracts <- large.tracts %>%
+                st_join(large.cities, left=FALSE)
+
+
+
+```
+```{r}
+df_19 <- as.data.frame(large.tracts19) %>% select(-geometry)
+df_18 <- as.data.frame(large.tracts18) %>% select(-geometry)
+df_17 <- as.data.frame(large.tracts17) %>% select(-geometry)
+df_16 <- as.data.frame(large.tracts16) %>% select(-geometry)
+df_15 <- as.data.frame(large.tracts15) %>% select(-geometry)
+
+
+
+```
+
+```{r}
+write.csv(df_19, "C:/Users/Brady Pearce/Documents/Springboard/df_19.csv")
+write.csv(df_18, "C:/Users/Brady Pearce/Documents/Springboard/df_18.csv")
+write.csv(df_17, "C:/Users/Brady Pearce/Documents/Springboard/df_17.csv")
+write.csv(df_16, "C:/Users/Brady Pearce/Documents/Springboard/df_16.csv")
+write.csv(df_15, "C:/Users/Brady Pearce/Documents/Springboard/df_15.csv")
+```
+
+
+```{r}
+large.tracts %>%
+  filter(NAME == "Raleigh") %>%
+  tm_shape(unit = "mi") +
+    tm_polygons(col = "phisp19", style = "quantile",palette = "Reds", 
+              border.alpha = 0, title = "") +
+    tm_scale_bar(breaks = c(0, 1, 2), text.size = 0.75, position = c("right", "bottom")) + tm_layout(main.title = "Percent Hispanic in Raleigh City Tracts 2019", main.title.size = 0.9, frame = FALSE)
+
+```
+```{r}
+large.tracts %>%
+  filter(NAME == "Raleigh") %>%
+tm_shape(unit = "mi") +
+  tm_polygons(col = "pnhwhite19", style = "quantile",palette = "Reds", 
+              border.alpha = 0, title = "") +
+  tm_scale_bar(breaks = c(0, 1, 2), text.size = 0.75, position = c("right", "bottom")) +  tm_layout(main.title = "Percent White in Raleigh City Tracts", main.title.size = 0.9,
+            frame = FALSE)
+```
+Download ACS data for 2010
+
+```{r}
+# Bring in 2006-2010 census tract data using the Census API 
+nc.tracts10 <- get_acs(geography = "tract", 
+              year = 2010,
+              variables = c(medinc10 = "B19013_001", rent10  = "B25064_001",
+                            houseval10 = "B25077_001", bachm = "B15002_015",
+                            mastersm = "B15002_016", profm = "B15002_017",
+                            phdm = "B15002_018", bachf = "B15002_032",
+                            mastersf = "B15002_033", proff = "B15002_034",
+                            phdf = "B15002_035", totcol = "B15002_001"),
+              state = "NC",
+              survey = "acs5",
+              output = "wide")
+
+# Make the data tidy, calculate and keep essential vars. 
+nc.tracts10 <- nc.tracts10 %>% 
+  rename_with(~ sub("E$", "", .x), everything()) %>%
+  mutate(pcol10 = 100*(bachm+mastersm+profm+phdm+bachf+mastersf+proff+phdf)/totcol) %>%
+  select(c(GEOID,medinc10, rent10, houseval10, pcol10)) 
+```
+
+
+```{r}
+# Bring in census tract data using the Census API 
+nc.places10 <- get_acs(geography = "place", 
+              year = 2010,
+              variables = c(medincc10 = "B19013_001", rentc10  = "B25064_001",
+                            housevalc10 = "B25077_001", bachm = "B15002_015",
+                            mastersm = "B15002_016", profm = "B15002_017",
+                            phdm = "B15002_018", bachf = "B15002_032",
+                            mastersf = "B15002_033", proff = "B15002_034",
+                            phdf = "B15002_035", totcol = "B15002_001"),
+              state = "NC",
+              survey = "acs5",
+              output = "wide")
+
+# Make the data tidy, calculate and keep essential vars. Also take out zero population tracts
+nc.places10 <- nc.places10 %>% 
+  rename_with(~ sub("E$", "", .x), everything()) %>%
+  mutate(pcolc10 = 100*(bachm+mastersm+profm+phdm+bachf+mastersf+proff+phdf)/totcol) %>%
+  select(c(GEOID,medincc10, rentc10, housevalc10, pcolc10)) 
+```
+
+```{r}
+# Bring in census tract data using the Census API 
+nc.places19 <- get_acs(geography = "place", 
+              year = 2019,
+              variables = c(medincc19 = "B19013_001", rentc19  = "B25064_001",
+                            housevalc19 = "B25077_001", bachc = "B15003_022",
+                            mastersc = "B15003_023", profc = "B15003_024",
+                            phdc = "B15003_025", totcolc = "B15003_001"),
+              state = "NC",
+              survey = "acs5",
+              output = "wide")
+
+# Make the data tidy, calculate and keep essential vars. Also take out zero population tracts
+nc.places19 <- nc.places19 %>% 
+  rename_with(~ sub("E$", "", .x), everything()) %>%
+  mutate(pcolc19 = 100*(bachc+mastersc+profc+phdc)/totcolc) %>%
+  select(c(GEOID,medincc19, rentc19, housevalc19, pcolc19)) 
+```
+
+
+```{r}
+charlotte.tracts <- large.tracts %>%
+            filter(NAME == "Charlotte")
+
+
+charlotte.tracts <- charlotte.tracts %>%
+            left_join(nc.tracts10, by = c("GEOID.x" = "GEOID"))
+
+
+charlotte.tracts <- charlotte.tracts %>%
+            left_join(nc.places10, by = c("GEOID.y" = "GEOID")) %>%
+            left_join(nc.places19, by = c("GEOID.y" = "GEOID")) 
+```
+
