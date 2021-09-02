@@ -1,6 +1,6 @@
 ---
 title: "US Census Data"
-author: "Dhiraj Khanna"
+author: "Brady Pearce and Dhiraj Khanna"
 date: "17/06/2021"
 output: html_document
 ---
